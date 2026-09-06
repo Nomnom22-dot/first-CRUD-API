@@ -1,12 +1,15 @@
 //routes.js
 const express = require("express");
 const router = express.Router();
+const db = require('./db');
 
-let todos = [
-    { id: 1, task: "Learn Express", done: false },
-    { id: 2, task: "Build CRUD API", done: false}
-];
-let nextId = 3;
+// let todos = [
+//     { id: 1, task: "Learn Express", done: false },
+//     { id: 2, task: "Build CRUD API", done: false}
+// ];
+// let nextId = 3;
+
+
 
 /**
  * @swagger
@@ -18,6 +21,7 @@ let nextId = 3;
  *         description: List of all to-dos
  */
 router.get("/todos", (req, res) => {
+    const todos = db.prepare('SELECT * FROM todos').all();
     res.json(todos);
 });
 
@@ -39,7 +43,7 @@ router.get("/todos", (req, res) => {
  *         description: Not found
  */
 router.get("/todos/:id", (req, res) => {
-    const todo = todos.find(t => t.id === parseInt(req.params.id));
+    const todo = db.prepare('SELECT * FROM todos WHERE id = ?').get(req.params.id);
     if(!todo) return res.status(404).json({message : "Todo not found"});
     res.json(todo);
 });

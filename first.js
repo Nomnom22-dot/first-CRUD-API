@@ -5,7 +5,10 @@ const swaggerJsdoc = require("swagger-jsdoc");
 const app = express();
 const routes = require("./routes");
 const path = require("path");
+const {statement} = require('./db');
 // const { version } = require("react");
+
+
 
 console.log(routes);
 
@@ -15,7 +18,7 @@ const swaggerOptions = {
     definition: {
         openapi : "3.0.0",
         info: {
-            title: "To-Do API",
+            title: "NomNom To-Do API",
             version: "1.0.0",
             description: "A simple CRUD API for managing a to-do list"
         },
