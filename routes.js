@@ -70,8 +70,9 @@ router.post("/todos", (req, res) => {
     const { task } = req.body;
     if (!task) return res.status(400).json({ message: "Task is required"});
 
-    const newTodo = { id: nextId++, task, done: false};
-    todos.push(newTodo);
+    const insert = db.prepare('INSERT INTO todos (task,done) VALUES (?,?)');
+    const result = insert.run(task, 0);
+    const newTodo = db.prepare('SELECT * FROM todos WHERE id = ?').get(result.lastInsertRowid);
     res.status(201).json(newTodo);
 });
 
