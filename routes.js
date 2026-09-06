@@ -104,14 +104,16 @@ router.post("/todos", (req, res) => {
  *         description: Not found
  */
 router.put("/todos/:id", (req,res) => {
-    const todo = todos.find(t => t.id === parseInt(req.params.id));
+    const todo = db.prepare('SELECT * FROM todos WHERE id = ?').get(req.params.id);
     if (!todo) return res.status(404).json({message: "Todo not Found"});
 
-    const { task, done} = req.body;
-    if(task !== undefined) todo.task = task;
-    if (done !== undefined) todo.done = done;
+    const task = req.body.task !== undefined ? req.body.task : todo.task;
+    const done = req.body.done !== undefined ? (req.body.done ? 1 : 0) : todo.done;
+    
+    db.prepare('UPDATE todos SET task = ?, done = ? WHERE id = ?').run(task, done, req.params.id);
 
-    res.json(todo);
+    const updated = db.prepare('SELECT * FROM todos WHERE id = ?').get(req.params.id);
+    res.json(updated);
 });
 
 /**
@@ -132,10 +134,10 @@ router.put("/todos/:id", (req,res) => {
  *         description: Not found
  */
 router.delete("/todos/:id", (req,res) => {
-    const index = todos.findIndex(t => t.id === parseInt(req.params.id));
-    if(index === -1) return res.status(404).json({message: "Todo not found"});
+    const todo = db.prepare('SELECT * FROM todos WHERE id = ?').get(req.params.id);
+    if(!todo) return res.status(404).json({message: "Todo not found"});
 
-    todos.splice(index,1);
+    db.prepare('DELETE FROM todos WHERE id = ?').run(req.params.id);
     res.json({message: "Todo deleted"});
 });
 
