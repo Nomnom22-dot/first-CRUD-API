@@ -1,6 +1,10 @@
 const Database = require('better-sqlite3')
-const db = new Database('todos.db')
-
+const db = new Database('todos.db', {
+    readonly: false,
+    fileMustExist: false,
+    timeout: 5000,
+    verbose: console.log
+});
 
 db.prepare (`
     CREATE TABLE IF NOT EXISTS todos(
@@ -10,21 +14,18 @@ db.prepare (`
 
     `).run();
 
-const row = db.prepare('Select COUNT(*) AS count from todos').get();
-if( row.count === 0){
-    const insert = db.prepare('Insert into todos (task,done) values (?, ?)');
-    insert.run('Learn Express', 0);
-    insert.run('Build CRUD API', 0);
+    const row = db.prepare('SELECT COUNT (*) AS COUNT FROM todos').get();
+    if(row.count === 0){
+        const insertData = db.prepare('INSERT INTO todos (task, done) VALUES (?,?)');
+        const data = [
+            {task: "mAking an api", done: 0},
+            {task: "Making Crud API", done: 0}
+        ];
+        data.forEach((item) => {
+            insertData.run(item.task,item.done);
+        });
+    }
 
 
-}
-
-    // const statements = {
-    //     getAll:db.prepare('Select * FROM tasks'),
-    //     getById:db.prepare('Select * FROM tasks Where id = ?'),
-    //     Insert:db.prepare('Insert Into tasks (title) VALUES (?)'),
-    //     update:db.prepare('Update tasks set title = ? Where id = ?'),
-    //     delete:db.prepare('Delete from tasks Where id = ?')
-    // };
 
     module.exports = db;
